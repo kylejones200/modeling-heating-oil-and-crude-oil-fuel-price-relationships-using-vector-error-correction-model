@@ -1,29 +1,23 @@
+---
+author: "Kyle Jones"
+date_published: "April 25, 2025"
+date_exported_from_medium: "November 10, 2025"
+canonical_link: "https://medium.com/@kyle-t-jones/modeling-heating-oil-and-crude-oil-fuel-price-relationships-using-vector-error-correction-model-d2af5214fa31"
+---
+
 # Modeling Heating Oil and Crude Oil Fuel Price Relationships using Vector Error Correction Model... Markets don't move in isolation. If you've ever watched energy prices,
 you've seen this: when crude oil prices rise, heating oil prices...
 
 ### Modeling Heating Oil and Crude Oil Fuel Price Relationships using **Vector Error Correction Model** (VECM) in Python
-Markets don't move in isolation. If you've ever watched energy prices,
-you've seen this: when crude oil prices rise, heating oil prices often
-follow. These movements aren't always perfectly in sync in the short
-term, but over time, they tend to settle into a consistent relationship.
-This is the hallmark of cointegration.
+Markets don't move in isolation. If you've ever watched energy prices, you've seen this: when crude oil prices rise, heating oil prices often follow. These movements aren't always perfectly in sync in the short term, but over time, they tend to settle into a consistent relationship. This is the hallmark of cointegration.
 
-We will build a Python pipeline to detect and model cointegration using
-Crude Oil (CL=F) and Heating Oil (HO=F) futures. We'll use the Vector
-Error Correction Model (VECM) to understand how these prices co-move in
-both the short and long run --- and forecast where they're heading next.
+We will build a Python pipeline to detect and model cointegration using Crude Oil (CL=F) and Heating Oil (HO=F) futures. We'll use the Vector Error Correction Model (VECM) to understand how these prices co-move in both the short and long run --- and forecast where they're heading next.
 
-Cointegration captures a long-term equilibrium relationship between two
-or more non-stationary time series. Prices may diverge in the short term
-but eventually return to a shared path. If two series are cointegrated,
-you can't just model them separately --- you need to account for their
-connection.
+Cointegration captures a long-term equilibrium relationship between two or more non-stationary time series. Prices may diverge in the short term but eventually return to a shared path. If two series are cointegrated, you can't just model them separately --- you need to account for their connection.
 
-VECM blends short-run dynamics (like a VAR model) with long-run
-equilibrium correction terms.
+VECM blends short-run dynamics (like a VAR model) with long-run equilibrium correction terms.
 
-We'll use Yahoo Finance to pull daily futures prices for Crude Oil and
-Heating Oil from 2015 to 2024.
+We'll use Yahoo Finance to pull daily futures prices for Crude Oil and Heating Oil from 2015 to 2024.
 
 ```python
 import yfinance as yf
@@ -45,12 +39,10 @@ plt.savefig("cointegration_series.png")
 plt.show()
 ```
 
-We're working with non-stationary price levels --- ideal for
-cointegration modeling.
+We're working with non-stationary price levels --- ideal for cointegration modeling.
 
 ### Step 2: Check for Stationarity
-We apply the Augmented Dickey-Fuller (ADF) test to see if the raw and
-differenced series are stationary.
+We apply the Augmented Dickey-Fuller (ADF) test to see if the raw and differenced series are stationary.
 
 ```python
 from statsmodels.tsa.stattools import adfuller
@@ -64,12 +56,10 @@ def adf_summary(df):
 adf_summary(df)
 ```
 
-Both price series are non-stationary in levels, but stationary in first
-differences --- confirming they are I(1).
+Both price series are non-stationary in levels, but stationary in first differences --- confirming they are I(1).
 
 ### Step 3: Test for Cointegration
-We now use the Johansen test to determine if the series share a stable
-long-run relationship.
+We now use the Johansen test to determine if the series share a stable long-run relationship.
 
 ```python
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
@@ -81,11 +71,7 @@ def johansen_test(df):
 johansen_test(df)
 ```
 
-The Johansen test results (Trace Statistic: \[50.96382923, 4.8986314\]
-exceeds the 95 % critical values) provide strong statistical evidence
-that Crude Oil and Heating Oil prices are cointegrated. This confirms
-our earlier visual intuition: despite short-term fluctuations, these
-fuel prices are tethered together by a long-run equilibrium.
+The Johansen test results (Trace Statistic: \[50.96382923, 4.8986314\] exceeds the 95 % critical values) provide strong statistical evidence that Crude Oil and Heating Oil prices are cointegrated. This confirms our earlier visual intuition: despite short-term fluctuations, these fuel prices are tethered together by a long-run equilibrium.
 
 ### Step 4: Fit the VECM
 We now fit the Vector Error Correction Model and inspect the dynamics.
@@ -99,17 +85,12 @@ print(vecm_res.summary())
 ```
 
 
-Loading coefficients show how each series adjusts back toward
-equilibrium. Short-run coefficients show immediate reactions to recent
-price changes.
+Loading coefficients show how each series adjusts back toward equilibrium. Short-run coefficients show immediate reactions to recent price changes.
 
-As one would expect, we find Crude Oil acts as the anchor, with Heating
-Oil adjusting more significantly.
+As one would expect, we find Crude Oil acts as the anchor, with Heating Oil adjusting more significantly.
 
 ### Step 5: Forecasting with VECM
-Instead of using `predict()`, we use
-`simulate_var()` to generate stable
-multi-step forecasts.
+Instead of using `predict()`, we use `simulate_var()` to generate stable multi-step forecasts.
 
 ```python
 def forecast_vecm(res, df, steps=12):
@@ -125,12 +106,10 @@ df[-100:].plot(figsize=(10, 5), label='Historical')
 forecast_vecm(vecm_res, df)
 ```
 
-The resulting chart shows how the model expects these series to evolve,
-always pulling back toward their long-run ratio.
+The resulting chart shows how the model expects these series to evolve, always pulling back toward their long-run ratio.
 
 ### Step 6: Impulse Response and Variance Decomposition
-We fit a short-run VAR on the differenced series to get insights into
-**shock transmission**.
+We fit a short-run VAR on the differenced series to get insights into **shock transmission**.
 
 ```python
 from statsmodels.tsa.api import VAR
@@ -153,21 +132,14 @@ run_var_irf_fevd(df.diff().dropna())
 ```
 
 
-These plots show that Heating Oil reacts to Crude Oil shocks immediately
-and strongly. Crude Oil forecasts are mostly driven by itself,
-reinforcing that it leads the dynamic.
+These plots show that Heating Oil reacts to Crude Oil shocks immediately and strongly. Crude Oil forecasts are mostly driven by itself, reinforcing that it leads the dynamic.
 
 ### Why This Matters
-This model confirms what energy analysts often suspect: Heating Oil
-prices are tethered to Crude, but they don't move identically. By
-modeling cointegration explicitly, we capture that subtle balance of
-independence and dependence.
+This model confirms what energy analysts often suspect: Heating Oil prices are tethered to Crude, but they don't move identically. By modeling cointegration explicitly, we capture that subtle balance of independence and dependence.
 
-You can use this approach for energy hedging, refinery profitability
-modeling, and Long-short trading strategies.
+You can use this approach for energy hedging, refinery profitability modeling, and Long-short trading strategies.
 
-This pipeline is extensible. You can change the inputs and see how other
-things are related.
+This pipeline is extensible. You can change the inputs and see how other things are related.
 
 ```python
 import yfinance as yf
@@ -337,10 +309,3 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-::::::::By [Kyle Jones](https://medium.com/@kyle-t-jones) on
-[April 25, 2025](https://medium.com/p/d2af5214fa31).
-
-[Canonical
-link](https://medium.com/@kyle-t-jones/modeling-heating-oil-and-crude-oil-fuel-price-relationships-using-vector-error-correction-model-d2af5214fa31)
-
-Exported from [Medium](https://medium.com) on November 10, 2025.
