@@ -8,7 +8,7 @@ canonical_link: "https://medium.com/@kyle-t-jones/modeling-heating-oil-and-crude
 # Modeling Heating Oil and Crude Oil Fuel Price Relationships using Vector Error Correction Model... Markets don't move in isolation. If you've ever watched energy prices,
 you've seen this: when crude oil prices rise, heating oil prices...
 
-### Modeling Heating Oil and Crude Oil Fuel Price Relationships using **Vector Error Correction Model** (VECM) in Python
+### Modeling Heating Oil and Crude Oil Fuel Price Relationships using Vector Error Correction Model (VECM) in Python
 Markets don't move in isolation. If you've ever watched energy prices, you've seen this: when crude oil prices rise, heating oil prices often follow. These movements aren't always perfectly in sync in the short term, but over time, they tend to settle into a consistent relationship. This is the hallmark of cointegration.
 
 We will build a Python pipeline to detect and model cointegration using Crude Oil (CL=F) and Heating Oil (HO=F) futures. We'll use the Vector Error Correction Model (VECM) to understand how these prices co-move in both the short and long run --- and forecast where they're heading next.
@@ -109,7 +109,7 @@ forecast_vecm(vecm_res, df)
 The resulting chart shows how the model expects these series to evolve, always pulling back toward their long-run ratio.
 
 ### Step 6: Impulse Response and Variance Decomposition
-We fit a short-run VAR on the differenced series to get insights into **shock transmission**.
+We fit a short-run VAR on the differenced series to get insights into shock transmission.
 
 ```python
 from statsmodels.tsa.api import VAR

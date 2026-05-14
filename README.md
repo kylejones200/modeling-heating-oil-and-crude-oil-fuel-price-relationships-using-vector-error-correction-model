@@ -33,10 +33,10 @@ Edit `config.yaml` to customize:
 ## VECM Model
 
 Vector Error Correction Model:
-- **Cointegration**: Long-run equilibrium relationship
-- **Error Correction**: Short-run adjustment mechanism
-- **Forecasting**: Multi-step ahead predictions
-- **Stationarity**: Requires I(1) series with cointegration
+- Cointegration: Long-run equilibrium relationship
+- Error Correction: Short-run adjustment mechanism
+- Forecasting: Multi-step ahead predictions
+- Stationarity: Requires I(1) series with cointegration
 
 ## Caveats
 
