@@ -1,13 +1,15 @@
-import yfinance as yf
-import pandas as pd
-import matplotlib.pyplot as plt
-from statsmodels.tsa.vector_ar.vecm import coint_johansen, VECM
-from statsmodels.tsa.api import VAR
-from statsmodels.tsa.stattools import adfuller
 import logging
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import yfinance as yf
+from statsmodels.tsa.api import VAR
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.vector_ar.vecm import VECM, coint_johansen
+
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
 
 def fetch_data(symbols, start="2015-01-01", end="2024-12-31"):
     """
@@ -21,9 +23,10 @@ def fetch_data(symbols, start="2015-01-01", end="2024-12-31"):
     Returns:
         pd.DataFrame: A DataFrame with columns ['HeatingOil', 'CrudeOil'] and date index.
     """
-    df = yf.download(symbols, start=start, end=end)['Close'].dropna()
-    df.columns = ['HeatingOil', 'CrudeOil']
+    df = yf.download(symbols, start=start, end=end)["Close"].dropna()
+    df.columns = ["HeatingOil", "CrudeOil"]
     return df
+
 
 def plot_series(df, filename="cointegration_series.png"):
     """
@@ -40,6 +43,7 @@ def plot_series(df, filename="cointegration_series.png"):
     plt.savefig(filename)
     plt.show()
 
+
 def adf_summary(df):
     """
     Performs Augmented Dickey-Fuller (ADF) tests on both levels and first differences
@@ -53,6 +57,7 @@ def adf_summary(df):
         logging.info(f"{col} ADF: {result[0]:.4f}, p={result[1]:.4f}")
         result_diff = adfuller(df[col].diff().dropna())
         logging.info(f"{col} ΔADF: {result_diff[0]:.4f}, p={result_diff[1]:.4f}")
+
 
 def johansen_test(df):
     """
@@ -68,6 +73,7 @@ def johansen_test(df):
     logging.info("Trace Statistic:", result.lr1)
     logging.info("Critical Values (90%, 95%, 99%):\n", result.cvt)
     return result
+
 
 def fit_vecm(df, lags=1, rank=1):
     """
@@ -86,6 +92,7 @@ def fit_vecm(df, lags=1, rank=1):
     logging.info(res.summary())
     return res
 
+
 def forecast_vecm(res, df, steps=12):
     """
     Forecasts future values using the fitted VECM and plots results.
@@ -96,14 +103,15 @@ def forecast_vecm(res, df, steps=12):
         steps (int): Number of periods to forecast forward.
     """
     forecast = res.predict(steps=steps)
-    future_idx = pd.date_range(df.index[-1], periods=steps, freq='ME')
+    future_idx = pd.date_range(df.index[-1], periods=steps, freq="ME")
     forecast_df = pd.DataFrame(forecast, columns=df.columns, index=future_idx)
-    
-    df[-100:].plot(figsize=(10, 5), label='Historical')
-    forecast_df.plot(ax=plt.gca(), style='--')
+
+    df[-100:].plot(figsize=(10, 5), label="Historical")
+    forecast_df.plot(ax=plt.gca(), style="--")
     plt.title("12-Month VECM Forecast")
     plt.savefig("vecm_forecast.png")
     plt.show()
+
 
 def run_var_irf_fevd(df_diff, lags=1, horizon=12):
     """
@@ -136,6 +144,7 @@ def run_var_irf_fevd(df_diff, lags=1, horizon=12):
     plt.savefig("var_fevd.png")
     plt.show()
 
+
 def main():
     """
     Runs the full cointegration analysis pipeline:
@@ -144,7 +153,7 @@ def main():
     - Fits and forecasts VECM
     - Plots IRFs and FEVD from a VAR on differenced data
     """
-    symbols = ['HO=F', 'CL=F']  # Heating Oil and Crude Oil
+    symbols = ["HO=F", "CL=F"]  # Heating Oil and Crude Oil
     df = fetch_data(symbols)
     plot_series(df)
     adf_summary(df)
@@ -155,6 +164,7 @@ def main():
 
     df_diff = df.diff().dropna()
     run_var_irf_fevd(df_diff, lags=1, horizon=12)
+
 
 if __name__ == "__main__":
     main()
