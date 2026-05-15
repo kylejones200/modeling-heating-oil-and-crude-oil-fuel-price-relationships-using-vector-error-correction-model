@@ -52,9 +52,9 @@ def forecast_vecm(model, df: pd.DataFrame, steps: int = 12) -> pd.DataFrame:
     future_idx = pd.date_range(df.index[-1], periods=steps, freq='ME')
     return pd.DataFrame(forecast, columns=df.columns, index=future_idx)
 
-def plot_price_relationship(df: pd.DataFrame, forecast: pd.DataFrame = None,
+def plot_price_relationship(df: pd.DataFrame, forecast: pd.DataFrame,
                            title: str, output_path: Path):
- """Plot price relationship """
+    """Plot price relationship """
     fig, ax = plt.subplots(figsize=(10, 6))
     
     ax.plot(df.index, df['HeatingOil'], label="Heating Oil", color="#4A90A4", linewidth=1.2)
