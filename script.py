@@ -1,6 +1,5 @@
 import yfinance as yf
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.vector_ar.vecm import coint_johansen, VECM
 from statsmodels.tsa.api import VAR
