@@ -2,7 +2,6 @@
 
 Magics and shell lines are commented out. Run with a normal Python interpreter."""
 
-
 # --- code cell ---
 
 """
@@ -22,14 +21,12 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
-
 def fetch_wti(start: str, end: str) -> pd.DataFrame:
     ticker = yf.Ticker("CL=F")
     hist = ticker.history(start=start, end=end, auto_adjust=True)
     hist = hist.reset_index()
     hist = hist[["Date", "Close"]].rename(columns={"Close": "Price"})
     return hist
-
 
 def main():
 
@@ -38,10 +35,8 @@ def main():
     df.to_csv(out_path, index=False)
     print(f"Saved {len(df)} rows to {out_path}")
 
-
 if __name__ == "__main__":
     main()
-
 
 # --- code cell ---
 
@@ -74,7 +69,6 @@ import pandas as pd
 from matplotlib.animation import FuncAnimation, PillowWriter
 from matplotlib.dates import AutoDateLocator, ConciseDateFormatter
 
-
 def _setup_matplotlib():
     mpl.rcParams.update(
         {
@@ -92,12 +86,10 @@ def _setup_matplotlib():
         }
     )
 
-
 def _bracket_spines(ax):
     # Nudge left and bottom spines outward for a bracket look
     ax.spines["left"].set_position(("outward", 6))
     ax.spines["bottom"].set_position(("outward", 6))
-
 
 def load_wti(csv_path: Path) -> pd.DataFrame:
     df = pd.read_csv(csv_path)
@@ -129,7 +121,6 @@ def load_wti(csv_path: Path) -> pd.DataFrame:
         df = df.set_index("date").resample("W-FRI").last().reset_index()
     return df.rename(columns={price_col: "price"})
 
-
 def make_frames(ax, dates, prices, y0, color_hi, color_lo, line_color):
     # Prepare masked arrays relative to threshold y0 ($70)
     above = np.maximum(prices, y0)
@@ -160,7 +151,6 @@ def make_frames(ax, dates, prices, y0, color_hi, color_lo, line_color):
     fill_lo = ax.fill_between([], [], [], where=[], interpolate=True, alpha=0.55)
     (line,) = ax.plot([], [], lw=1.2, color=line_color, alpha=0.95)
     return fill_hi, fill_lo, line
-
 
 def animate_wti(
     df,
@@ -263,20 +253,8 @@ def animate_wti(
     )
     plt.close(fig)
 
-
-def main():
-
-    csv_path = "out.csv"
-    out_path = "wti.gig"
-
-    df = load_wti(csv_path)
-
-    animate_wti(df, out_path, title="WTI Crude Oil Price", fps=24, dpi=250)
-
-
 if __name__ == "__main__":
     main()
-
 
 # --- code cell ---
 
@@ -305,30 +283,7 @@ dpi = 180
 threshold_hi = 70.0  # US shale price
 threshold_lo = 50.0  # Global average
 
-
 # ---- Style ----
-def _setup_matplotlib():
-    mpl.rcParams.update(
-        {
-            "font.family": "serif",
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.linewidth": 1.1,
-            "axes.labelsize": 11,
-            "axes.titlesize": 13,
-            "xtick.labelsize": 9,
-            "ytick.labelsize": 9,
-            "figure.dpi": 120,
-            "savefig.bbox": "tight",
-            "savefig.pad_inches": 0.08,
-        }
-    )
-
-
-def _bracket_spines(ax):
-    ax.spines["left"].set_position(("outward", 6))
-    ax.spines["bottom"].set_position(("outward", 6))
-
 
 # ---- Data ----
 def fetch_wti_yf(start: str, end: str | None) -> pd.DataFrame:
@@ -341,7 +296,6 @@ def fetch_wti_yf(start: str, end: str | None) -> pd.DataFrame:
     df["date"] = pd.to_datetime(df["date"])
     df = df.dropna().sort_values("date").reset_index(drop=True)
     return df
-
 
 def load_wti_csv(path: str | Path) -> pd.DataFrame:
     df = pd.read_csv(path)
@@ -362,100 +316,7 @@ def load_wti_csv(path: str | Path) -> pd.DataFrame:
         df = df.set_index("date").resample("W-FRI").last().reset_index()
     return df.rename(columns={price_col: "price"}).reset_index(drop=True)
 
-
 # ---- Plot + GIF ----
-def animate_wti(
-    df: pd.DataFrame,
-    out_gif: str | Path,
-    out_png: str | Path,
-    title: str,
-    y0: float,
-    y_ref: float,
-    fps: int,
-    dpi: int,
-):
-    _setup_matplotlib()
-    dates = pd.to_datetime(df["date"]).to_numpy()
-    prices = df["price"].to_numpy().astype(float)
-
-    fig, ax = plt.subplots(figsize=(10, 4.5))
-    _bracket_spines(ax)
-
-    locator = AutoDateLocator()
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(ConciseDateFormatter(locator))
-    ax.set_ylabel("USD per barrel")
-    ax.set_title(title)
-
-    y_min = math.floor(min(prices.min(), y_ref) / 5) * 5
-    y_max = math.ceil(max(prices.max(), y0) / 5) * 5
-    ax.set_ylim(y_min, y_max)
-
-    color_hi = "#2ca02c"  # green
-    color_lo = "#d62728"  # red
-    line_color = "black"
-
-    n = len(dates)
-
-    def init():
-        ax.plot([], [], lw=1.2, color=line_color, alpha=0.95)
-        return []
-
-    def update(frame):
-        ax.clear()
-        _bracket_spines(ax)
-        ax.xaxis.set_major_locator(locator)
-        ax.xaxis.set_major_formatter(ConciseDateFormatter(locator))
-        ax.set_ylabel("USD per barrel")
-        ax.set_title(title)
-        ax.set_ylim(y_min, y_max)
-
-        x = dates[: frame + 1]
-        y = prices[: frame + 1]
-
-        ax.fill_between(
-            x, y0, y, where=y >= y0, interpolate=True, alpha=0.55, color=color_hi
-        )
-        ax.fill_between(
-            x, y, y0, where=y < y0, interpolate=True, alpha=0.55, color=color_lo
-        )
-
-        ax.axhline(y0, lw=1.1, color="0.35", alpha=0.9, zorder=3)
-        ax.axhline(y_ref, lw=1.0, color="0.55", ls="--", alpha=0.8, zorder=3)
-
-        ax.text(
-            x[0] if len(x) else dates[0],
-            y0 + 1.2,
-            "$70  US shale price",
-            va="bottom",
-            ha="left",
-            fontsize=9,
-            color="0.2",
-        )
-        ax.text(
-            x[0] if len(x) else dates[0],
-            y_ref + 1.2,
-            "$50  Global average",
-            va="bottom",
-            ha="left",
-            fontsize=9,
-            color="0.3",
-        )
-
-        ax.plot(x, y, lw=1.2, color=line_color, alpha=0.95)
-        return []
-
-    interval_ms = max(12, int(1000 / fps))
-    anim = FuncAnimation(
-        fig, update, init_func=init, frames=n, interval=interval_ms, blit=False
-    )
-
-    writer = PillowWriter(fps=fps)
-    anim.save(str(out_gif), writer=writer, dpi=dpi)
-    plt.savefig(str(out_png), dpi=dpi)  # save figure file per your preference
-    plt.show()
-    plt.close(fig)
-
 
 # ---- Run ----
 if use_yfinance:
@@ -465,7 +326,6 @@ else:
 
 animate_wti(df_wti, output_gif, output_png, title, threshold_hi, threshold_lo, fps, dpi)
 print(f"Wrote {output_gif} and {output_png}")
-
 
 # --- code cell ---
 
@@ -514,39 +374,11 @@ mpl.rcParams.update(
     }
 )
 
-
 def _bracket(ax):
     ax.spines["left"].set_position(("outward", 6))
     ax.spines["bottom"].set_position(("outward", 6))
 
-
 # ---- Data ----
-def fetch_wti_yf(start, end):
-    import yfinance as yf
-
-    t = yf.Ticker("CL=F")
-    df = t.history(start=start, end=end, auto_adjust=True).reset_index()
-    df = df[["Date", "Close"]].rename(columns={"Date": "date", "Close": "price"})
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.dropna().sort_values("date").reset_index(drop=True)
-    return df
-
-
-def load_wti_csv(path):
-    df = pd.read_csv(path)
-    df.columns = [c.lower() for c in df.columns]
-    if "date" not in df.columns:
-        raise ValueError("Need Date column")
-    pcol = next(
-        (c for c in ("price", "wti", "close", "value") if c in df.columns), None
-    )
-    if pcol is None:
-        raise ValueError("Need price column: price|wti|close|value")
-    df["date"] = pd.to_datetime(df["date"])
-    df[pcol] = pd.to_numeric(df[pcol], errors="coerce")
-    df = df.dropna(subset=["date", pcol]).sort_values("date")
-    return df.rename(columns={pcol: "price"}).reset_index(drop=True)
-
 
 df = fetch_wti_yf(start_date, end_date) if use_yfinance else load_wti_csv(csv_path)
 
@@ -567,7 +399,6 @@ locator = AutoDateLocator()
 
 fig, ax = plt.subplots(figsize=(10, 4.5))
 _b = _bracket
-
 
 def draw_frame(k):
     ax.clear()
@@ -616,7 +447,6 @@ def draw_frame(k):
 
     ax.plot(x, y, lw=1.2, color="black", alpha=0.95)
 
-
 # Final PNG first
 draw_frame(n_frames - 1)
 plt.savefig(out_png, dpi=dpi)
@@ -633,7 +463,6 @@ with imageio.get_writer(out_gif, mode="I", fps=fps) as w:
 
 plt.close(fig)
 print(f"Wrote {out_png} and {out_gif}")
-
 
 # --- code cell ---
 
@@ -664,7 +493,6 @@ y_shale = 70.0
 y_global = 50.0
 max_frames = 200
 
-
 mpl.rcParams.update(
     {
         "font.family": "serif",
@@ -680,39 +508,6 @@ mpl.rcParams.update(
         "savefig.pad_inches": 0.08,
     }
 )
-
-
-def _bracket(ax):
-    ax.spines["left"].set_position(("outward", 6))
-    ax.spines["bottom"].set_position(("outward", 6))
-
-
-def fetch_wti_yf(start, end):
-    import yfinance as yf
-
-    t = yf.Ticker("CL=F")
-    df = t.history(start=start, end=end, auto_adjust=True).reset_index()
-    df = df[["Date", "Close"]].rename(columns={"Date": "date", "Close": "price"})
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.dropna().sort_values("date").reset_index(drop=True)
-    return df
-
-
-def load_wti_csv(path):
-    df = pd.read_csv(path)
-    df.columns = [c.lower() for c in df.columns]
-    if "date" not in df.columns:
-        raise ValueError("Need Date column")
-    pcol = next(
-        (c for c in ("price", "wti", "close", "value") if c in df.columns), None
-    )
-    if pcol is None:
-        raise ValueError("Need price column: price|wti|close|value")
-    df["date"] = pd.to_datetime(df["date"])
-    df[pcol] = pd.to_numeric(df[pcol], errors="coerce")
-    df = df.dropna(subset=["date", pcol]).sort_values("date")
-    return df.rename(columns={pcol: "price"}).reset_index(drop=True)
-
 
 df = fetch_wti_yf(start_date, end_date) if use_yfinance else load_wti_csv(csv_path)
 
@@ -731,51 +526,6 @@ y_min = math.floor(min(prices.min(), y_global) / 5) * 5
 y_max = math.ceil(max(prices.max(), y_shale) / 5) * 5
 
 fig, ax = plt.subplots(figsize=(10, 4.5))
-
-
-def draw_frame(k):
-    ax.clear()
-    _bracket(ax)
-    ax.set_title(title)
-    ax.set_ylabel("USD per barrel")
-    ax.set_ylim(y_min, y_max)
-    ax.xaxis.set_major_locator(locator)
-    ax.xaxis.set_major_formatter(ConciseDateFormatter(locator))
-
-    x = dates[: k + 1]
-    y = prices[: k + 1]
-
-    ax.fill_between(
-        x, y_shale, y, where=y >= y_shale, interpolate=True, alpha=0.55, color="#2ca02c"
-    )
-    ax.fill_between(
-        x, y, y_shale, where=y < y_shale, interpolate=True, alpha=0.55, color="#d62728"
-    )
-    ax.axhline(y_shale, lw=1.1, color="0.35", alpha=0.9, zorder=3)
-    ax.axhline(y_global, lw=1.0, color="0.55", ls="--", alpha=0.8, zorder=3)
-
-    if len(x):
-        ax.text(
-            x[0],
-            y_shale + 1.2,
-            "$70  US shale price",
-            va="bottom",
-            ha="left",
-            fontsize=9,
-            color="0.2",
-        )
-        ax.text(
-            x[0],
-            y_global + 1.2,
-            "$50  Global average",
-            va="bottom",
-            ha="left",
-            fontsize=9,
-            color="0.3",
-        )
-
-    ax.plot(x, y, lw=1.2, color="black", alpha=0.95)
-
 
 # Final PNG
 draw_frame(n_frames - 1)
