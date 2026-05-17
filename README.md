@@ -43,3 +43,11 @@ Vector Error Correction Model:
 - Requires internet connection to fetch data from Yahoo Finance.
 - Data availability depends on Yahoo Finance API.
 - VECM requires cointegrated I(1) series.
+
+## Disclaimer
+
+Educational/demo code only. Not financial, safety, or engineering advice. Use at your own risk. Verify results independently before any production or operational use.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
