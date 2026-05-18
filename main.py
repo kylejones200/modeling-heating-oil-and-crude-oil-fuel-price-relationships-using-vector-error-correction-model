@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 
-def load_config(config_path: Path = None) -> dict:
+def load_config(config_path: Path | None = None) -> dict:
     """Load configuration from YAML file."""
     if config_path is None:
         config_path = Path(__file__).parent / "config.yaml"
@@ -41,7 +41,6 @@ def main():
         "--output-dir", type=Path, default=None, help="Output directory"
     )
     args = parser.parse_args()
-
     config = load_config(args.config)
     output_dir = (
         Path(args.output_dir)
@@ -49,17 +48,14 @@ def main():
         else Path(config["output"]["figures_dir"])
     )
     output_dir.mkdir(exist_ok=True)
-
     logging.info("Fetching data from Yahoo Finance...")
     df = fetch_data(
         config["data"]["symbols"],
         config["data"]["start_date"],
         config["data"]["end_date"],
     )
-
     logging.info(f"Data shape: {df.shape}")
     logging.info(f"Date range: {df.index[0]} to {df.index[-1]}")
-
     logging.info("Testing stationarity...")
     stationarity = test_stationarity(df)
     for col, results in stationarity.items():
@@ -75,23 +71,19 @@ def main():
     coint_result = test_cointegration(df)
     logging.info(f"Trace Statistic: {coint_result['trace_statistic']}")
     logging.info(f"Critical Values (90%, 95%, 99%): {coint_result['critical_values']}")
-
     logging.info("Fitting VECM model...")
     vecm_model = fit_vecm_model(
         df, config["model"]["lags"], config["model"]["coint_rank"]
     )
     logging.info(f"\n{vecm_model.summary()}")
-
     logging.info(f"Forecasting {config['forecast']['steps']} steps ahead...")
     forecast = forecast_vecm(vecm_model, df, config["forecast"]["steps"])
-
     plot_price_relationship(
         df,
         forecast,
         "Heating Oil vs Crude Oil: VECM Analysis",
         output_dir / "vecm_analysis.png",
     )
-
     logging.info(f"Analysis complete. Figures saved to {output_dir}")
 
 

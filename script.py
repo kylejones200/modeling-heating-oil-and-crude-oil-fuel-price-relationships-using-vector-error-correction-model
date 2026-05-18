@@ -14,7 +14,6 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 def fetch_data(symbols, start="2015-01-01", end="2024-12-31"):
     """
     Fetches historical daily closing prices from Yahoo Finance for specified symbols.
-
     Args:
         symbols (list): List of ticker symbols to download (e.g., ['HO=F', 'CL=F']).
         start (str): Start date for the data in 'YYYY-MM-DD' format.
@@ -31,7 +30,6 @@ def fetch_data(symbols, start="2015-01-01", end="2024-12-31"):
 def plot_series(df, filename="cointegration_series.png"):
     """
     Plots the input time series and saves the figure to a file.
-
     Args:
         df (pd.DataFrame): DataFrame with time series to plot.
         filename (str): Name of the output PNG file.
@@ -48,7 +46,6 @@ def adf_summary(df):
     """
     Performs Augmented Dickey-Fuller (ADF) tests on both levels and first differences
     of each column in the DataFrame and prints the results.
-
     Args:
         df (pd.DataFrame): DataFrame containing time series to test.
     """
@@ -62,7 +59,6 @@ def adf_summary(df):
 def johansen_test(df):
     """
     Runs the Johansen cointegration test on the input data.
-
     Args:
         df (pd.DataFrame): DataFrame containing non-stationary I(1) time series.
 
@@ -78,7 +74,6 @@ def johansen_test(df):
 def fit_vecm(df, lags=1, rank=1):
     """
     Fits a Vector Error Correction Model (VECM) to the data.
-
     Args:
         df (pd.DataFrame): Time series data to model.
         lags (int): Number of lags to use in the VECM.
@@ -96,7 +91,6 @@ def fit_vecm(df, lags=1, rank=1):
 def forecast_vecm(res, df, steps=12):
     """
     Forecasts future values using the fitted VECM and plots results.
-
     Args:
         res (VECMResults): Fitted VECM results object.
         df (pd.DataFrame): Original time series data.
@@ -105,7 +99,6 @@ def forecast_vecm(res, df, steps=12):
     forecast = res.predict(steps=steps)
     future_idx = pd.date_range(df.index[-1], periods=steps, freq="ME")
     forecast_df = pd.DataFrame(forecast, columns=df.columns, index=future_idx)
-
     df[-100:].plot(figsize=(10, 5), label="Historical")
     forecast_df.plot(ax=plt.gca(), style="--")
     plt.title("12-Month VECM Forecast")
@@ -117,7 +110,6 @@ def run_var_irf_fevd(df_diff, lags=1, horizon=12):
     """
     Fits a VAR model on differenced data, plots impulse response functions (IRFs)
     and forecast error variance decomposition (FEVD).
-
     Args:
         df_diff (pd.DataFrame): First-differenced time series data.
         lags (int): Number of lags for the VAR model.
@@ -126,18 +118,15 @@ def run_var_irf_fevd(df_diff, lags=1, horizon=12):
     model = VAR(df_diff)
     res = model.fit(maxlags=lags)
     logging.info(res.summary())
-
     irf = res.irf(horizon)
     irf.plot(orth=False)
     plt.suptitle("Impulse Response (Standard)")
     plt.savefig("var_irf_standard.png")
     plt.show()
-
     irf.plot(orth=True)
     plt.suptitle("Impulse Response (Orthogonalized)")
     plt.savefig("var_irf_orthogonalized.png")
     plt.show()
-
     fevd = res.fevd(horizon)
     fevd.plot()
     plt.suptitle("Forecast Error Variance Decomposition (FEVD)")
@@ -157,11 +146,9 @@ def main():
     df = fetch_data(symbols)
     plot_series(df)
     adf_summary(df)
-
     johansen_test(df)
     vecm_res = fit_vecm(df, lags=1, rank=1)
     forecast_vecm(vecm_res, df)
-
     df_diff = df.diff().dropna()
     run_var_irf_fevd(df_diff, lags=1, horizon=12)
 

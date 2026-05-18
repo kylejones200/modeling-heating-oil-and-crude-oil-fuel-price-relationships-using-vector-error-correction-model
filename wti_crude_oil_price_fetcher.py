@@ -187,7 +187,7 @@ def fetch_wti_yf(start: str, end: str | None) -> pd.DataFrame:
 
 def load_wti(csv_path: Path) -> pd.DataFrame:
     df = pd.read_csv(csv_path)
-    cols = {c: c.lower() for c in df.columns}
+    {c: c.lower() for c in df.columns}
     df.columns = [c.lower() for c in df.columns]
     price_col = None
     for cand in ["price", "wti", "close", "value"]:
@@ -239,8 +239,8 @@ def main():
 
 
 def make_frames(ax, dates, prices, y0, color_hi, color_lo, line_color):
-    above = np.maximum(prices, y0)
-    below = np.minimum(prices, y0)
+    np.maximum(prices, y0)
+    np.minimum(prices, y0)
     ax.axhline(y0, lw=1.1, color="0.35", alpha=0.9)
     ax.axhline(50, lw=1.0, color="0.55", ls="--", alpha=0.8)
     ax.text(
@@ -267,37 +267,22 @@ def make_frames(ax, dates, prices, y0, color_hi, color_lo, line_color):
     return (fill_hi, fill_lo, line)
 
 
-def main() -> None:
+def main_alt() -> None:
     "\nFetch historical WTI Crude Oil prices from Yahoo Finance.\n\nTicker: CL=F (NYMEX Crude Oil Futures, front month)\n\nOutputs:\n  wti_yf.csv with columns Date, Price\n\nUsage:\n  python fetch_wti_yf.py --start 2010-01-01 --end 2025-12-31 --out wti_yf.csv\n"
-
     main()
-
     '\nWTI Mountain GIF with Threshold Fill\n\nInput\n  CSV with columns: Date, Price (case-insensitive). Date parses with pandas.to_datetime.\n  Example header: Date,WTI\n\nOutput\n  wti_mountain.gif in the same folder.\n\nUsage\n  python make_wti_gif.py --csv wti.csv --out wti_mountain.gif\n  Optional: --title "WTI Crude Oil Price" --fps 24 --dpi 150\n\nNotes\n  The area shows green above $70 and red below $70.\n  Horizontal lines mark $70 (US shale price) and $50 (Global average).\n'
-
     main()
-
     use_yfinance = True
-
     csv_path = "out.csv"
-
     start_date = "2010-01-01"
-
     end_date = None
-
     output_gif = "wti_mountain.gif"
-
     output_png = "wti_mountain.png"
-
     title = "WTI Crude Oil Price"
-
     fps = 40
-
     dpi = 180
-
     threshold_hi = 70.0
-
     threshold_lo = 50.0
-
     if use_yfinance:
         df_wti = fetch_wti_yf(start_date, end_date)
     else:
@@ -306,33 +291,19 @@ def main() -> None:
     animate_wti(
         df_wti, output_gif, output_png, title, threshold_hi, threshold_lo, fps, dpi
     )
-
     print(f"Wrote {output_gif} and {output_png}")
-
     use_yfinance = True
-
     csv_path = "wti.csv"
-
     start_date = "2010-01-01"
-
     end_date = None
-
     out_gif = "wti_mountain.gif"
-
     out_png = "wti_mountain.png"
-
     title = "WTI Crude Oil Price"
-
     fps = 48
-
     dpi = 160
-
     y_shale = 70.0
-
     y_global = 50.0
-
     max_frames = 600
-
     mpl.rcParams.update(
         {
             "font.family": "serif",
@@ -348,36 +319,22 @@ def main() -> None:
             "savefig.pad_inches": 0.08,
         }
     )
-
     df = fetch_wti_yf(start_date, end_date) if use_yfinance else load_wti_csv(csv_path)
-
     if len(df) > 4000:
         df = df.set_index("date").resample("W-FRI").last().dropna().reset_index()
 
     n = len(df)
-
     stride = max(1, int(math.ceil(n / max_frames)))
-
     df_anim = df.iloc[::stride].copy()
-
-    dates = pd.to_datetime(df_anim["date"]).to_numpy()
-
+    pd.to_datetime(df_anim["date"]).to_numpy()
     prices = df_anim["price"].to_numpy(dtype=float)
-
     n_frames = len(df_anim)
-
-    locator = AutoDateLocator()
-
+    AutoDateLocator()
     fig, ax = plt.subplots(figsize=(10, 4.5))
-
     _b = _bracket
-
     draw_frame(n_frames - 1)
-
     plt.savefig(out_png, dpi=dpi)
-
     plt.show()
-
     with imageio.get_writer(out_gif, mode="I", fps=fps) as w:
         for k in range(n_frames):
             draw_frame(k)
@@ -387,33 +344,19 @@ def main() -> None:
             w.append_data(frame)
 
     plt.close(fig)
-
     print(f"Wrote {out_png} and {out_gif}")
-
     use_yfinance = True
-
     csv_path = "wti.csv"
-
     start_date = "2022-01-01"
-
     end_date = None
-
     out_gif = "wti_mountain.gif"
-
     out_png = "wti_mountain.png"
-
     title = "WTI Crude Oil Price"
-
     fps = 24
-
     dpi = 110
-
     y_shale = 70.0
-
     y_global = 50.0
-
     max_frames = 200
-
     mpl.rcParams.update(
         {
             "font.family": "serif",
@@ -429,38 +372,23 @@ def main() -> None:
             "savefig.pad_inches": 0.08,
         }
     )
-
     df = fetch_wti_yf(start_date, end_date) if use_yfinance else load_wti_csv(csv_path)
-
     if len(df) > 4000:
         df = df.set_index("date").resample("W-FRI").last().dropna().reset_index()
 
     n = len(df)
-
     stride = max(1, int(math.ceil(n / max_frames)))
-
     df_anim = df.iloc[::stride].copy()
-
-    dates = pd.to_datetime(df_anim["date"]).to_numpy()
-
+    pd.to_datetime(df_anim["date"]).to_numpy()
     prices = df_anim["price"].to_numpy(float)
-
     n_frames = len(df_anim)
-
-    locator = AutoDateLocator()
-
-    y_min = math.floor(min(prices.min(), y_global) / 5) * 5
-
-    y_max = math.ceil(max(prices.max(), y_shale) / 5) * 5
-
+    AutoDateLocator()
+    math.floor(min(prices.min(), y_global) / 5) * 5
+    math.ceil(max(prices.max(), y_shale) / 5) * 5
     fig, ax = plt.subplots(figsize=(10, 4.5))
-
     draw_frame(n_frames - 1)
-
     plt.savefig(out_png, dpi=dpi)
-
     plt.show()
-
     with imageio.get_writer(out_gif, mode="I", fps=fps) as w:
         for k in range(n_frames):
             draw_frame(k)
@@ -471,7 +399,6 @@ def main() -> None:
             buf.close()
 
     plt.close(fig)
-
     print(f"Wrote {out_png} and {out_gif}")
 
 
