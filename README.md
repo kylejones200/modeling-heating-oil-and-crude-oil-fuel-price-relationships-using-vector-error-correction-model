@@ -2,6 +2,14 @@
 
 This project demonstrates Vector Error Correction Model (VECM) for analyzing cointegrated time series.
 
+## Business context
+
+Markets don't move in isolation. If you've ever watched energy prices, you've seen this: when crude oil prices rise, heating oil prices often follow. These movements aren't always perfectly in sync in the short term, but over time, they tend to settle into a consistent relationship. This is the hallmark of cointegration.
+
+We will build a Python pipeline to detect and model cointegration using Crude Oil (CL=F) and Heating Oil (HO=F) futures. We'll use the Vector Error Correction Model (VECM) to understand how these prices co-move in both the short and long run --- and forecast where they're heading next.
+
+Cointegration captures a long-term equilibrium relationship between two or more non-stationary time series. Prices may diverge in the short term but eventually return to a shared path. If two series are cointegrated, you can't just model them separately --- you need to account for their connection.
+
 ## Article
 
 Medium article: [Modeling Heating Oil and Crude Oil Price Relationships Using VECM](https://medium.com/@kylejones_47003/modeling-heating-oil-and-crude-oil-fuel-price-relationships-using-vector-error-correction-model-d2af5214fa31)
